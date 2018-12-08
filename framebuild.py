@@ -650,7 +650,7 @@ class Frame:
 		# The centre of the front wheel
 		fwc = self._fork_path()[-1]
 		trail = p[0] - fwc[0]
-		wb = fwc[0] - self.left_drop.end[1]
+		wb = fwc[0] - self.left_drop.end[0]
 		return trail, wb
 
 	def render_mitre_templates(self):
