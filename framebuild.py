@@ -703,7 +703,7 @@ Tube Cuts
 		b = abs(dot(self.dt_ht.corners[INSIDE] - self.dt_bb_mitre_corner[INSIDE],
 			self.down_tube.vecn))
 		print("Down Tube length from inside " \
-				"BB mitre to inside ST mitre: {:.2f}".format(b))
+				"BB mitre to inside HT mitre: {:.2f}".format(b))
 
 		print("Offset between DT/BB mitre and DT/ST mitre on " \
 				"DT inside centreline: {:.2f}".format(b - a))
