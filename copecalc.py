@@ -79,11 +79,13 @@ class Circle(Ellipse):
 		return "{}mm".format(self.diameter)
 
 class Curve:
-	def __init__(self, cut, par, wall, angle, rotate=False, offset=0):
+	def __init__(self, cut, par, wall,
+			angle, rotate=False, offset=0, taper=0.0):
 		"""cut is diameters of cut tube, par of parent tube (or just one
 		diameter if they're the same), wall is wall thickness. All units mm.
 		angle is the angle between them in degrees. If rotate, display the plot
-		shifted by 90 degrees around the tube."""
+		shifted by 90 degrees around the tube. taper is the taper of the parent
+		tube, expressed as a ratio of diameter change per unit length"""
 		if not hasattr(cut, "__iter__"):
 			cut = [cut, cut]
 		else:
@@ -94,6 +96,7 @@ class Curve:
 		self.angle = angle
 		self.rotate = rotate
 		self.offset = offset
+		self.taper = taper
 
 		if cut[0] == cut[1]:
 			self.ellipse = Circle(cut[0])
@@ -109,7 +112,8 @@ class Curve:
 		points = []
 
 		# We use a coordinate system in which the diameter of the parent tube
-		# is always 1.0. R is then the radii of the inside of the cut tube.
+		# is always 1.0 (or starts at 1.0 in the case of a taper) R is then the
+		# radii of the inside of the cut tube.
 		R = [0, 0]
 		for i in range(2):
 			cut[i] -= wall * 2
@@ -125,6 +129,9 @@ class Curve:
 
 		# Radius as opposed to diameter
 		par_r = par / 2
+
+		# How much the radius changes by
+		taper_r = self.taper / 2
 
 		min_y = 0
 		for theta in angles():
@@ -144,7 +151,8 @@ class Curve:
 			else:
 				# phi is the angle of this point around the parent tube.
 				phi = acos(a)
-				y = 1 - sin(phi) - b * slope
+				r = 1.0 + b * taper_r
+				y = 1 - r * sin(phi) - b * slope
 
 			# We map the angle back onto the outside diameter, although the
 			# actual curve is on the inside diameter. This implies your cut is
@@ -210,11 +218,15 @@ class Curve:
 			pos += step
 
 		legend = "Cut: {}\nParent: {}mm\n" \
-				"Wall: {}mm\nAngle: {:.2f}°\nOffset: {:.2f}mm".format(
-						self.ellipse.text(), self.par,
-						self.wall, self.angle, self.offset)
+				"Wall: {}mm\nAngle: {:.2f}°".format(self.ellipse.text(),
+						self.par, self.wall, self.angle)
+		if self.offset:
+			legend = "{}\nOffset: {}mm".format(legend, self.offset)
+		if self.taper:
+			legend = "{}\nTaper: {}mm".format(legend, self.taper)
 		if caption:
 			legend = "{}\n{}".format(caption, legend)
+
 		draw.text(((margin + 3) * scale, margin * scale),
 				legend, fill="black")
 
@@ -258,6 +270,8 @@ parent tube.
 			help="Angle between the tubes in degrees, default 90")
 	ap.add_argument("-r", "--resolution", type=float, default=100,
 			help="Pixels per inch, default 100")
+	ap.add_argument("-e", "--taper", type=float, default=0.0,
+			help="Taper of parent tube as ratio of diameter change to length")
 	ap.add_argument("-o", "--outfile", default="template.png")
 	ap.add_argument("-f", "--rotate", action="store_true", default=False)
 	ap.add_argument("-s", "--offset", type=float, default=0.0)
@@ -273,7 +287,7 @@ parent tube.
 		sys.exit(1)
 
 	curve = Curve(cut, args.parent, args.wall,
-			args.angle, args.rotate, args.offset)
+			args.angle, args.rotate, args.offset, args.taper)
 	curve.render_png(args.outfile, args.caption, args.resolution)
 
 if __name__ == "__main__":
