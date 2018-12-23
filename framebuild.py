@@ -485,13 +485,15 @@ class Frame:
 
 		self._parse_section(config["Dropouts"], (
 			("dropout_thickness", "thickness"),
-			("dropout_cs_length", "cs_length"),
-			("dropout_ss_length", "ss_length"),
+			("dropout_cs_length", "cs length"),
+			("dropout_ss_length", "ss length"),
 			))
 
 		self._parse_section(config["Chainrings"], (
 			("chainline", "chainline"),
 			("chainring_spacing", "chainring spacing"),
+			("pedal_thickness", "pedal thickness"),
+			("crank_length", "crank length"),
 			))
 
 		chainrings = [int(x) for x in config["Chainrings"]["teeth"].split(',')]
@@ -653,6 +655,12 @@ class Frame:
 		wb = fwc[0] - self.left_drop.end[0]
 		return trail, wb
 
+	def calc_clearance(self):
+		"""Return the BB height and the pedal strike"""
+		bb_height = self.wheel_diameter/2 + self.tyre_height - self.bb_drop
+		pedal_strike = bb_height - self.crank_length - self.pedal_thickness / 2
+		return bb_height, pedal_strike
+
 	def render_mitre_templates(self):
 		print("""
 Mitres
@@ -724,6 +732,10 @@ Other Metrics
 		trail, wb = self.calc_trail_and_wb()
 		print("Trail: {:.2f}".format(trail))
 		print("Wheelbase: {:.2f}".format(wb))
+
+		bb_height, pedal_strike = self.calc_clearance()
+		print("BB height (ground to centre of BB): {:.2f}".format(bb_height))
+		print("Pedal clearance: {:.2f}".format(pedal_strike))
 
 		print("Angle between ST and DT: {:.2f}deg".format(
 			rad2deg(self.dt_st.angle)))
