@@ -101,7 +101,7 @@ class Dropout:
 		self.vecn = self.vec / norm(self.vec)
 
 class Mitre:
-	def __init__(self, cut, cut_end, parent, parent_end):
+	def __init__(self, cut, cut_end, parent, parent_end, angle=None):
 		"""cut and parent are tubes, a_end and b_end tell you which ends you're
 		putting the mitre between. The two tubes must be rotated to be in the
 		z=0 plane."""
@@ -110,7 +110,7 @@ class Mitre:
 
 		self.parent = parent
 		self.parent_end = parent_end
-		self.angle = arccos(dot(self.cut.vecn, self.parent.vecn))
+		self.angle = angle or arccos(dot(self.cut.vecn, self.parent.vecn))
 
 		# The "radius" of the mitre is the length from the centre line to the
 		# top or the bottom of the cut.
@@ -617,9 +617,11 @@ class Frame:
 		for datum in (
 				("dt_ht", self.down_tube, TOP, self.head_tube, BOTTOM),
 				("tt_ht", self.top_tube, TOP, self.head_tube, TOP),
-				("st_bb", self.seat_tube, BOTTOM, rotated_bb, BOTTOM),
+				("st_bb", self.seat_tube,
+					BOTTOM, rotated_bb, BOTTOM, deg2rad(90)),
 				("tt_st", self.top_tube, BOTTOM, self.seat_tube, TOP),
-				("dt_bb", self.down_tube, BOTTOM, rotated_bb, BOTTOM),
+				("dt_bb", self.down_tube,
+					BOTTOM, rotated_bb, BOTTOM, deg2rad(90)),
 				("dt_st", self.down_tube, BOTTOM, self.seat_tube, BOTTOM),
 				):
 			name, args = datum[0], datum[1:]
