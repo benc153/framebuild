@@ -271,7 +271,8 @@ parent tube.
 	ap.add_argument("-r", "--resolution", type=float, default=100,
 			help="Pixels per inch, default 100")
 	ap.add_argument("-e", "--taper", type=float, default=0.0,
-			help="Taper of parent tube as ratio of diameter change to length")
+			help="Taper of parent tube as ratio of diameter change to "
+			"length change")
 	ap.add_argument("-o", "--outfile", default="template.png")
 	ap.add_argument("-f", "--rotate", action="store_true", default=False)
 	ap.add_argument("-s", "--offset", type=float, default=0.0)

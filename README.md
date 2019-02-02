@@ -31,6 +31,9 @@ close enough to ellipitcal) at the front.
 It can also do offsets-- if you want the cut tube not to aim to the centre of
 the parent tube but off to one side. This is useful for seatstays.
 
+It can also generate a template for a tapered parent tube, assuming a linear
+taper. You specify the ratio of diameter change to length change.
+
 You can also adjust the resolution at which it prints. It defaults to 100px per
 inch which is the same as the one on metalgeek. I print from [the
 GIMP](https://www.gimp.org/) which has an Image Settings tab where you can set
@@ -108,6 +111,31 @@ ones.
 
 `chainstays.png` is drawn in a reference frame in which the chainstays are flat
 on the paper, so that should have the right lengths.
+
+### Tapered Head-Tubes
+
+`framebuild` doesn't support tapered head-tubes but `copecalc` does. You can
+work around this as follows:
+
+1. Design your frame using the diameter that the HT has at the top.
+2. Once you've cut the actual tapered HT to length, mark the positions of the
+   DT mitre on it.
+3. Measure the diameter of the HT at the top and bottom of the mitre, and work
+   out the diameter change per unit length.
+4. Run `copecalc` with the -t option to make your template.
+5. Replace the HT diameter in your ini file with the diameter at the top of the
+   mitre. Run `framebuild` again and this will give you the correct DT length
+   from the inside of the ST mitre to the inside of the HT mitre.
+6. Replace the HT diameter with the diameter at the top of the mitre, run
+   `framebuild` again, and this will give you the correct DT length from the
+   outside of the BB mitre to the outside of the HT mitre. You don't strictly
+   need both these measurements-- the one in step 5 is enough-- but it's good
+   to double-check.
+
+When you change the HT length and rerun `framebuild` the angle of the DT will
+actually change very slightly because it's solving to keep your lower extension
+at the value you asked for. But the difference is not significant and the cut
+lengths you get from changing that diameter will be close enough.
 
 ### Building it
 
