@@ -400,6 +400,9 @@ Tube Cuts
 		print("Angle between SS and ST: {:.2f}deg".format(
 			rad2deg(arccos(dot(f.left_ss.vecn, f.seat_tube.vecn)))))
 
+		print("Angle between CS centre-line and horizontal: {:.2f}deg".format(
+			rad2deg(arcsin(f.bb_drop / f.cs_length))))
+
 	def render_scale_diagram(self, outfile, px_per_mm=2):
 		f = self.frame
 
