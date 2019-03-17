@@ -64,6 +64,19 @@ class Tube:
 		ret.vecn /= norm(ret.vecn)
 		return ret
 
+	def mass(self):
+		"""Return the mass in kg not worrying about butting"""
+		r = self.get_radius(BOTTOM)
+		r2 = r - self.get_wall(BOTTOM)
+		area = pi * (r**2 - r2**2)
+
+		# Volume in m^3
+		volume = (area * self.length()) / 1e9
+		return volume * 8050
+
+	def flex_rigidity(self):
+		"""Return the flexural rigidity in units of Nm^2"""
+
 class ExternallyButtedTube(Tube):
 	def __init__(self, diameters, walls):
 		self.diameters = diameters
@@ -686,6 +699,14 @@ Mitres
 						", ".join(["{:.2f}".format(x)
 							for x in mitre.reference_points()])))
 
+	def total_mass(self):
+		ret = 0.0
+		for name in ("seat_tube", "top_tube", "head_tube", "down_tube",
+				"left_cs", "right_cs", "left_ss", "right_ss", "bb_tube"):
+			tube = getattr(self, name)
+			ret += tube.mass()
+		return ret
+
 	def display(self):
 		"""Show key metrics"""
 		print("""
@@ -755,6 +776,9 @@ Other Metrics
 			rad2deg(self.tt_ht.angle)))
 
 		self.rear_triangle.display()
+
+		print("Approx total mass excluding dropouts: {:.2f}kg".format(
+			self.total_mass()))
 
 	def _lower_stack_path(self):
 		v = self.head_tube.vecn
