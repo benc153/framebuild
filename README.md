@@ -137,6 +137,24 @@ actually change very slightly because it's solving to keep your lower extension
 at the value you asked for. But the difference is not significant and the cut
 lengths you get from changing that diameter will be close enough.
 
+### Flexural Rigidity and Deflection Estimates
+
+For each tube the program works out the [Flexural
+Rigidity](https://en.wikipedia.org/wiki/Flexural_rigidity) and an estimate of
+the deflection of each tube under a 100kg load at its centre. For these
+calculations it isn't sophisticated enough to understand butted tubes properly
+so it works with the thinner wall thickness in the middle.
+
+It's not that you expect to get that load in particular in normal use but it
+provides an interesting point of comparison. You probably want the deflection
+estimate to be similar for all frames-- around 3 or 4mm seems to be about right
+for a nice lively feeling steel frame.
+
+For example, a long low slack MTB with a 750mm down tube deflects around 4.5mm
+under this theoretical test load in spite of having a diameter of 35mm,
+compared to 4.08mm for a road frame with a 620mm DT which only has a 28.6mm
+diameter.
+
 ### Building it
 
 Once you're happy with the design, you can use the mitre templates and the

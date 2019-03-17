@@ -12,10 +12,12 @@ EPSILON = 1e-5
 seterr(all='raise')
 
 class Tube:
-	def __init__(self, diameter, wall):
+	def __init__(self, diameter, wall, centre_wall=None):
 		self.diameter = diameter
 		self.radius = diameter / 2
 		self.wall = wall
+		self.centre_wall = wall if not centre_wall else centre_wall
+		self.flex_rigidity = self.calc_flex_rigidity()
 
 	def place(self, top, bottom, tube_top=None, tube_bottom=None):
 		"""top and bottom are the positions of the intersections, tube_top and
@@ -66,22 +68,39 @@ class Tube:
 
 	def mass(self):
 		"""Return the mass in kg not worrying about butting"""
-		r = self.get_radius(BOTTOM)
-		r2 = r - self.get_wall(BOTTOM)
-		area = pi * (r**2 - r2**2)
+		r2 = self.get_radius(BOTTOM)
+		r1 = r2 - self.get_wall(BOTTOM)
+		area = pi * (r2**2 - r1**2)
 
 		# Volume in m^3
 		volume = (area * self.length()) / 1e9
 		return volume * 8050
 
-	def flex_rigidity(self):
-		"""Return the flexural rigidity in units of Nm^2"""
+	def calc_flex_rigidity(self):
+		r2 = self.get_radius(BOTTOM)
+		r1 = r2 - self.centre_wall
+
+		# We need these in metres
+		r2 /= 1000
+		r1 /= 1000
+
+		return 200e9 * (pi * (r2**4 - r1**4) / 4.0)
+
+	def deflection(self, load):
+		"""Return the deflection under load kg applied in the middle. We're
+		just working with the thinner part of the tube here, but actually it's
+		thicker at the ends"""
+		f = load * 9.8
+		l = self.length() / 1000.0
+		return (f * l**3) / (48 * self.flex_rigidity)
 
 class ExternallyButtedTube(Tube):
-	def __init__(self, diameters, walls):
+	def __init__(self, diameters, walls, centre_wall=None):
 		self.diameters = diameters
 		self.radii = [d/2 for d in diameters]
 		self.walls = walls
+		self.centre_wall = walls[BOTTOM] if not centre_wall else centre_wall
+		self.flex_rigidity = self.calc_flex_rigidity()
 
 	def get_diameter(self, end):
 		return self.diameters[end]
@@ -441,6 +460,7 @@ Tube Cuts
 
 class Frame:
 	def __init__(self, config):
+		self.config = config
 		self._parse_section(config["Basic Dimensions"], (
 			("st", "seat tube length"),
 			("tt", "top tube length"),
@@ -475,10 +495,14 @@ class Frame:
 			config["Tube Diameters"]).items()}
 		walls = {k: float(v) for k, v in dict(
 			config["Tube Walls"]).items()}
+		centre_walls = {k: float(v) for k, v in dict(
+			config["Tube Centre Walls"]).items()}
 
-		self.top_tube = Tube(diams["top tube"], walls["top tube"])
+		self.top_tube = Tube(diams["top tube"],
+				walls["top tube"], centre_walls.get("top tube"))
 		self.head_tube = Tube(diams["head tube"], walls["head tube"])
-		self.down_tube = Tube(diams["down tube"], walls["down tube"])
+		self.down_tube = Tube(diams["down tube"],
+				walls["down tube"], centre_walls.get("down tube"))
 		self.bb_tube = Tube(diams["bb shell"], walls["bb shell"])
 
 		self.left_cs = EllipticalTube((diams["chain stay major"],
@@ -490,7 +514,8 @@ class Frame:
 
 		self.seat_tube = ExternallyButtedTube(
 			(diams["seat tube top"], diams["seat tube bottom"]),
-			(walls["seat tube top"], walls["seat tube bottom"]))
+			(walls["seat tube top"], walls["seat tube bottom"]),
+			centre_walls.get("seat tube"))
 
 		self._parse_section(config["Wheels"], (
 			("rear_axle_spacing", "rear axle spacing"),
@@ -707,6 +732,18 @@ Mitres
 			ret += tube.mass()
 		return ret
 
+	def display_flex_rigidities(self):
+		for name, tube in (
+				("Down Tube", self.down_tube),
+				("Seat Tube", self.seat_tube),
+				("Top Tube", self.top_tube),
+				):
+			print("Flexural Rigidity of {}: {:.2f}Nm^2".format(
+				name, tube.flex_rigidity))
+			print("Approx deflection of {} under 100kg load in " \
+					"centre: {:.2f}mm".format(name,
+						tube.deflection(100) * 1000.0))
+
 	def display(self):
 		"""Show key metrics"""
 		print("""
@@ -747,6 +784,9 @@ Tube Cuts
 		print("Down Tube length from outside BB mitre to " \
 				"outside HT mitre: {:.2f}".format(l))
 
+		print("Down Tube length centre to centre: {:.2f}".format(
+			self.down_tube.length()))
+
 		print("""
 Other Metrics
 -------------""")
@@ -775,10 +815,12 @@ Other Metrics
 		print("Angle between TT and HT: {:.2f}deg".format(
 			rad2deg(self.tt_ht.angle)))
 
-		self.rear_triangle.display()
-
 		print("Approx total mass excluding dropouts: {:.2f}kg".format(
 			self.total_mass()))
+
+		self.display_flex_rigidities()
+
+		self.rear_triangle.display()
 
 	def _lower_stack_path(self):
 		v = self.head_tube.vecn
