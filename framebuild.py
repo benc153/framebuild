@@ -799,6 +799,10 @@ Other Metrics
 		print("Trail: {:.2f}".format(trail))
 		print("Wheelbase: {:.2f}".format(wb))
 
+		th = self.head_angle
+		flop = trail * sin(th) * cos(th)
+		print("Wheel flop: {:.2f}mm axle drop over 90 degrees".format(flop))
+
 		bb_height, pedal_strike = self.calc_clearance()
 		print("BB height (ground to centre of BB): {:.2f}".format(bb_height))
 		print("Pedal clearance: {:.2f}".format(pedal_strike))
