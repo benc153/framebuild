@@ -1,7 +1,8 @@
 What's this?
 ============
 
-There are two programs you can run here-- `framebuild.py` and `copecalc.py`.
+There are three programs you can run here-- `framebuild.py`, `copecalc.py` and
+`riderfit.py`.
 
 ## How to run them
 
@@ -48,6 +49,20 @@ It outputs a couple of diagrams, a bunch of mitre templates, all the
 measurements you need to cut the tubes to the right lengths, and a few other
 useful metrics.
 
+## riderfit.py
+
+This takes a rider configuration file like `default_rider.ini` and optionally
+also a frame configation file. If you provide a frame configuration it just
+means it can draw a diagram of the rider actually sitting on the bike.
+
+To get a sense of what size bike you want for a particular rider first put her
+measurements, and those of the handlebar and stem and the seat tube angle into
+the configuration file. Then decide on how much bar drop and what sort of
+shoulder angle you want based on how aggressive a position you want. The
+program will output the stack and reach you want to aim for. The shoulder angle
+is the angle between the rider's upper arm and his torso, and should be a
+maximum of 80 degrees for the most aggressive position.
+
 ### Designing your bike
 
 The following is all assuming a lugless frame-- i.e. welded or fillet brazed.
@@ -58,9 +73,9 @@ angles, so maybe you could tune the lengths to get the angles you need.
 #### Choose some numbers
 
 1. Pick a standard wheel size.
-2. Decide what stack and reach you want-- these are the two measurements that
-   depend the most on the size and proportions of the rider and what sort of
-   riding position you're looking for.
+2. Decide what stack and reach you want (possibly using `riderfit.py`) -- these
+   are the two measurements that depend the most on the size and proportions of
+   the rider and what sort of riding position you're looking for.
 3. Decide on a seat angle-- usually 73 or 74 degrees.
 4. Decide on a head angle based on your understanding of the black art of
    steering geometry and what fork you're going to be using.

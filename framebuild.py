@@ -316,7 +316,6 @@ class RearTriangle:
 		cs = f.left_cs.transform(self.projection)
 		bb = f.bb_tube.transform(self.projection)
 		self.cs_bb = Mitre(cs, BOTTOM, bb, BOTTOM)
-		self.cs_bb.make_template("cs_bb", "Chain Stay to BB Shell", False)
 
 		self.cs_in_mitre_length = abs(dot(cs.top - self.cs_bb.corners[INSIDE],
 			cs.vecn))
@@ -327,7 +326,6 @@ class RearTriangle:
 		ss = f.left_ss.transform(t)
 		st = f.seat_tube.transform(t)
 		self.ss_st = Mitre(ss, TOP, st, TOP)
-		self.ss_st.make_template("ss_st", "Seat Stay to Seat Tube", False)
 
 		self.ss_in_mitre_length = abs(dot(ss.bottom - self.ss_st.corners[INSIDE],
 			ss.vecn))
@@ -435,7 +433,7 @@ Tube Cuts
 		print("Angle between CS centre-line and horizontal: {:.2f}deg".format(
 			rad2deg(arcsin(f.bb_drop / f.cs_length))))
 
-	def render_scale_diagram(self, outfile, px_per_mm=2):
+	def render_scale_diagram(self, px_per_mm=2):
 		f = self.frame
 
 		left_cs = f.left_cs.transform(self.projection)
@@ -456,7 +454,11 @@ Tube Cuts
 		self._draw_chainrings(r)
 		r.draw_mitre(self.cs_bb)
 
-		r.save(outfile)
+		return r
+
+	def render_mitre_templates(self):
+		self.cs_bb.make_template("cs_bb", "Chain Stay to BB Shell", False)
+		self.ss_st.make_template("ss_st", "Seat Stay to Seat Tube", False)
 
 class Frame:
 	def __init__(self, config):
@@ -724,6 +726,8 @@ Mitres
 						", ".join(["{:.2f}".format(x)
 							for x in mitre.reference_points()])))
 
+		self.rear_triangle.render_mitre_templates()
+
 	def total_mass(self):
 		ret = 0.0
 		for name in ("seat_tube", "top_tube", "head_tube", "down_tube",
@@ -850,13 +854,15 @@ Other Metrics
 
 		return [start, end]
 
-	def render_scale_diagram(self, outfile, px_per_mm=2):
+	def render_scale_diagram(self, render=None, px_per_mm=2):
 		fork_path = self._fork_path()
 
-		inf = array([self.left_cs.tube_top[0], 0])
-		sup = array([fork_path[-1][0], self.head_tube.tube_top[1]])
-
-		r = Render(inf, sup, px_per_mm)
+		if render is None:
+			inf = array([self.left_cs.tube_top[0], 0])
+			sup = array([fork_path[-1][0], self.head_tube.tube_top[1]])
+			r = Render(inf, sup, px_per_mm)
+		else:
+			r = render
 
 		for tube in (self.seat_tube, self.top_tube, self.head_tube,
 				self.down_tube):
@@ -897,8 +903,7 @@ Other Metrics
 		r.draw_point(self.dt_bb_mitre_corner[INSIDE], "red")
 		r.draw_point(self.dt_bb_mitre_corner[OUTSIDE], "cyan")
 
-		r.save(outfile)
-		print("Rendered diagram to {}".format(outfile))
+		return r
 
 def main():
 	ap = ArgumentParser()
@@ -910,11 +915,16 @@ def main():
 	config.read(args.config)
 	frame = Frame(config)
 	frame.render_mitre_templates()
-	frame.render_scale_diagram("side_view.png", args.resolution)
+
+	r = frame.render_scale_diagram(None, args.resolution)
+	r.save("side_view.png")
+	print("Rendered diagram to side_view.png")
+
 	frame.display()
 
-	frame.rear_triangle.render_scale_diagram(
-			"chainstays.png", args.resolution)
+	r = frame.rear_triangle.render_scale_diagram(args.resolution)
+	r.save("chainstays.png")
+	print("Rendered chainstays to chainstays.png")
 
 if __name__ == "__main__":
 	main()
