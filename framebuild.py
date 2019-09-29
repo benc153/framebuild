@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from argparse import *
 from collections import namedtuple
 from numpy import *
