@@ -1,4 +1,5 @@
 from argparse import *
+from collections import namedtuple
 from numpy import *
 from numpy.linalg import norm
 import configparser
@@ -10,6 +11,8 @@ from pdb import set_trace as brk
 
 EPSILON = 1e-5
 seterr(all='raise')
+
+WheelGeom = namedtuple("WheelGeom", "trail front_centre rear_centre wheelbase")
 
 class Tube:
 	def __init__(self, diameter, wall, centre_wall=None):
@@ -684,9 +687,8 @@ class Frame:
 		# only really working in 2D).
 		self.dt_bb_mitre_corner = self._calc_dt_bb_mitre_corner()
 
-	def calc_trail_and_wb(self):
-		"""Work out the trail and the wheelbase. Easiest to do these
-		together"""
+	def calc_wheel_geom(self):
+		"""Work out the trail and wheelbase. Easiest to do this together"""
 		ground = self.bb_drop - (self.wheel_diameter / 2 + self.tyre_height)
 		y = self.head_tube.tube_bottom[1]
 		l = (ground - y) / self.head_tube.vecn[1]
@@ -696,9 +698,10 @@ class Frame:
 
 		# The centre of the front wheel
 		fwc = self._fork_path()[-1]
-		trail = p[0] - fwc[0]
-		wb = fwc[0] - self.left_drop.end[0]
-		return trail, wb
+		fc = fwc[0]
+		trail = p[0] - fc
+		rc = -self.left_drop.end[0]
+		return WheelGeom(trail, fc, rc, fc + rc)
 
 	def calc_clearance(self):
 		"""Return the BB height and the pedal strike"""
@@ -799,12 +802,14 @@ Other Metrics
 		print("Stack: {:.2f}".format(reach_stack[1]))
 		print("Reach: {:.2f}".format(reach_stack[0]))
 
-		trail, wb = self.calc_trail_and_wb()
-		print("Trail: {:.2f}".format(trail))
-		print("Wheelbase: {:.2f}".format(wb))
+		wg = self.calc_wheel_geom()
+		print("Trail: {:.2f}".format(wg.trail))
+		print("Front Centre: {:.2f}".format(wg.front_centre))
+		print("Rear Centre: {:.2f}".format(wg.rear_centre))
+		print("Wheelbase: {:.2f}".format(wg.wheelbase))
 
 		th = self.head_angle
-		flop = trail * sin(th) * cos(th)
+		flop = wg.trail * sin(th) * cos(th)
 		print("Wheel flop: {:.2f}mm axle drop over 90 degrees".format(flop))
 
 		bb_height, pedal_strike = self.calc_clearance()
