@@ -826,6 +826,11 @@ Other Metrics
 		print("BB height (ground to centre of BB): {:.2f}".format(bb_height))
 		print("Pedal clearance: {:.2f}".format(pedal_strike))
 
+		# Assume upper stack the same as lower stack.
+		min_steerer = self.head_tube.length() + self.lower_stack
+		print("Min steerer length threaded: {:.2f}".format(min_steerer + 5))
+		print("Min steerer length threadless: {:.2f}".format(min_steerer + 30))
+
 		print("Angle between ST and DT: {:.2f}deg".format(
 			rad2deg(self.dt_st.angle)))
 
