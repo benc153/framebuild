@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 from argparse import *
 from collections import namedtuple
 from numpy import *
@@ -14,6 +15,10 @@ EPSILON = 1e-5
 seterr(all='raise')
 
 WheelGeom = namedtuple("WheelGeom", "trail front_centre rear_centre wheelbase")
+
+class FrameError(Exception):
+	def __init__(self, msg):
+		self.msg = msg
 
 class Tube:
 	def __init__(self, diameter, wall, centre_wall=None):
@@ -568,8 +573,8 @@ class Frame:
 		self.seat_tube.place(top, bottom, tube_top)
 
 	def _place_tt(self):
-		"""The "bottom" is the seat tube end, although we assume the TT is
-		actually horizontal"""
+		"""The "bottom" is the seat tube end by convention even if the TT is
+		actually horizontal or slopes down"""
 		bottom = self.seat_tube.top
 		top = bottom + self.tt * \
 				array([cos(self.top_angle), sin(self.top_angle), 0])
@@ -618,6 +623,10 @@ class Frame:
 			error = self.lower_ht_ext_edge - x - dot(crown_ix-corner, vec)
 			if abs(error) < EPSILON: break
 			x += error
+
+		if la < 0:
+			raise FrameError("Cannot fit head-tube for this fork length. "
+				"Either increase the seat-tube length or the top-tube angle.")
 
 		# We'll set tube_top and tube_bottom for the HT after computing the
 		# Mitres.
@@ -919,7 +928,13 @@ def main():
 	args = ap.parse_args()
 	config = configparser.ConfigParser()
 	config.read(args.config)
-	frame = Frame(config)
+
+	try:
+		frame = Frame(config)
+	except FrameError as e:
+		print(e.msg)
+		sys.exit(1)
+
 	frame.render_mitre_templates()
 
 	r = frame.render_scale_diagram(None, args.resolution)
