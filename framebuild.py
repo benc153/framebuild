@@ -439,6 +439,9 @@ Tube Cuts
 		print("Angle between SS and ST: {:.2f}deg".format(
 			rad2deg(arccos(dot(f.left_ss.vecn, f.seat_tube.vecn)))))
 
+		print("Angle between CS and ST: {:.2f}deg".format(
+			rad2deg(arccos(dot(f.left_cs.vecn, f.seat_tube.vecn)))))
+
 		print("Angle between CS centre-line and horizontal: {:.2f}deg".format(
 			rad2deg(arcsin(f.bb_drop / f.cs_length))))
 
