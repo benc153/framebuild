@@ -196,12 +196,10 @@ case of Columbus tubing), and then measure from there to where the other mitre
 needs to go.
 
 The program outputs mitre templates for the seat-stays on the assumption that
-they're aiming straight for the centre of the seat-tube. In practice this
-usually means they'll bump into each other. I suppose you could mitre them
-against each other, but better is to run `copecalc.py` again with an offset so
-you can aim them outwards a bit. Stick to the same length from the inside of
-the mitre, it won't be significantly affected by moving the tube sideways a cm
-or so at the top.
+they're offset from the centre of the seat-tube by their diameter. Otherwise
+they would bump into each other. With the templates generated from the program
+and typical seat-tube and seat-stay diameters the tops of the two seat-stays
+will fit next to each other very well.
 
 Chain-stays usually have a flattened bit in them where the tyre goes. If you're
 using 700C wheels this probably means you want to cut the chainstays to length

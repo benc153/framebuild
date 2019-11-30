@@ -159,12 +159,12 @@ class Mitre:
 		self.radius = r / dot(turn_left(self.cut.vecn), self.parent.vecn)
 		self._find_corners()
 
-	def make_template(self, name, caption, rotate):
+	def make_template(self, name, caption, rotate, offset=0.0):
 		cut = self.cut.get_diameters(self.cut_end)
 		cut_wall = self.cut.get_wall(self.cut_end)
 
 		par = self.parent.get_diameter(self.parent_end)
-		curve = Curve(cut, par, cut_wall, rad2deg(self.angle), rotate)
+		curve = Curve(cut, par, cut_wall, rad2deg(self.angle), rotate, offset)
 		curve.render_png(name + ".png", caption)
 
 	@staticmethod
@@ -336,10 +336,10 @@ class RearTriangle:
 		st = f.seat_tube.transform(t)
 		self.ss_st = Mitre(ss, TOP, st, TOP)
 
-		self.ss_in_mitre_length = abs(dot(ss.bottom - self.ss_st.corners[INSIDE],
-			ss.vecn))
-		self.ss_out_mitre_length = abs(dot(ss.bottom - self.ss_st.corners[OUTSIDE],
-			ss.vecn))
+		self.ss_in_mitre_length = abs(dot(
+			ss.bottom - self.ss_st.corners[INSIDE], ss.vecn))
+		self.ss_out_mitre_length = abs(dot(
+			ss.bottom - self.ss_st.corners[OUTSIDE], ss.vecn))
 
 	def _place_tubes(self):
 		self._place_css()
@@ -470,7 +470,10 @@ Tube Cuts
 
 	def render_mitre_templates(self):
 		self.cs_bb.make_template("cs_bb", "Chain Stay to BB Shell", False)
-		self.ss_st.make_template("ss_st", "Seat Stay to Seat Tube", False)
+		self.ss_st.make_template("lss_st", "Left Seat Stay to Seat Tube", False,
+				self.frame.left_ss.diameter)
+		self.ss_st.make_template("rss_st", "Right Seat Stay to Seat Tube", False,
+				-self.frame.right_ss.diameter)
 
 class Frame:
 	def __init__(self, config):
@@ -524,7 +527,7 @@ class Frame:
 		self.right_cs = deepcopy(self.left_cs)
 
 		self.left_ss = Tube(diams["seat stay"], walls["seat stay"])
-		self.right_ss = deepcopy(self.left_cs)
+		self.right_ss = deepcopy(self.left_ss)
 
 		self.seat_tube = ExternallyButtedTube(
 			(diams["seat tube top"], diams["seat tube bottom"]),
