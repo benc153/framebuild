@@ -835,7 +835,7 @@ Other Metrics
 		# Assume upper stack the same as lower stack.
 		min_steerer = self.head_tube.length() + self.lower_stack
 		print("Min steerer length threaded: {:.2f}".format(min_steerer + 5))
-		print("Min steerer length threadless: {:.2f}".format(min_steerer + 30))
+		print("Min steerer length threadless: {:.2f}".format(min_steerer + 40))
 
 		print("Angle between ST and DT: {:.2f}deg".format(
 			rad2deg(self.dt_st.angle)))
