@@ -786,7 +786,8 @@ Tube Cuts
 				- self.tt_ht.corners[INSIDE], self.top_tube.vecn))
 		print("Top tube length between inside mitres: {:.2f}".format(l))
 
-		print("Seat Tube length from top to BB mitre: {:.2f}".format(
+		print("Seat Tube length from top to BB mitre "
+				"(at side of frame): {:.2f}".format(
 			self.seat_tube.length() - self.bb_tube.get_radius(BOTTOM)))
 
 		a = abs(dot(self.dt_ht.corners[INSIDE] - self.dt_st.corners[INSIDE],
