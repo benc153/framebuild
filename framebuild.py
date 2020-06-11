@@ -471,9 +471,9 @@ Tube Cuts
 	def render_mitre_templates(self):
 		self.cs_bb.make_template("cs_bb", "Chain Stay to BB Shell", False)
 		self.ss_st.make_template("lss_st", "Left Seat Stay to Seat Tube", False,
-				self.frame.left_ss.diameter)
+				-self.frame.left_ss.diameter)
 		self.ss_st.make_template("rss_st", "Right Seat Stay to Seat Tube", False,
-				-self.frame.right_ss.diameter)
+				self.frame.right_ss.diameter)
 
 class Frame:
 	def __init__(self, config):
