@@ -150,9 +150,9 @@ class Curve:
 				y = 1
 			else:
 				# phi is the angle of this point around the parent tube.
-				phi = acos(a)
+				phi = asin(a)
 				r = 1.0 + b * taper_r
-				y = 1 - r * sin(phi) - b * slope
+				y = 1 - r * cos(phi) - b * slope
 
 			# We map the angle back onto the outside diameter, although the
 			# actual curve is on the inside diameter. This implies your cut is
