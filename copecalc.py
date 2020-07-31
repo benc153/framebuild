@@ -80,7 +80,7 @@ class Circle(Ellipse):
 
 class Curve:
 	def __init__(self, cut, par, wall,
-			angle, rotate=False, offset=0, taper=0.0):
+			angle, rotate=False, offset=0, taper=0.0, twist=0.0):
 		"""cut is diameters of cut tube, par of parent tube (or just one
 		diameter if they're the same), wall is wall thickness. All units mm.
 		angle is the angle between them in degrees. If rotate, display the plot
@@ -97,6 +97,7 @@ class Curve:
 		self.rotate = rotate
 		self.offset = offset
 		self.taper = taper
+		self.twist = twist
 
 		if cut[0] == cut[1]:
 			self.ellipse = Circle(cut[0])
@@ -126,6 +127,7 @@ class Curve:
 		# add 90 degrees.
 		angle = fmod(angle + 90, 360)
 		slope = tan(deg2rad(angle))
+		twist = deg2rad(self.twist)
 
 		# Radius as opposed to diameter
 		par_r = par / 2
@@ -138,8 +140,8 @@ class Curve:
 
 			# (a, b) is the point on the inside circumference of the cut tube
 			# at theta
-			a = R[0] * cos(theta)
-			b = R[1] * sin(theta)
+			a = R[0] * cos(theta + twist)
+			b = R[1] * sin(theta + twist)
 
 			a += offset
 
@@ -226,6 +228,8 @@ class Curve:
 			legend = "{}\nTaper: {}mm".format(legend, self.taper)
 		if caption:
 			legend = "{}\n{}".format(caption, legend)
+		if self.twist:
+			legend = "{}\nTwist: {:.2f}°".format(legend, self.twist)
 
 		draw.text(((margin + 3) * scale, margin * scale),
 				legend, fill="black")
@@ -268,6 +272,8 @@ parent tube.
 			help="Wall thickness in mm, default 0.9")
 	ap.add_argument("-a", "--angle", type=float, default=90,
 			help="Angle between the tubes in degrees, default 90")
+	ap.add_argument("-b", "--twist", type=float, default=0,
+			help="Parent tube twist in degrees")
 	ap.add_argument("-r", "--resolution", type=float, default=100,
 			help="Pixels per inch, default 100")
 	ap.add_argument("-e", "--taper", type=float, default=0.0,
@@ -288,7 +294,7 @@ parent tube.
 		sys.exit(1)
 
 	curve = Curve(cut, args.parent, args.wall,
-			args.angle, args.rotate, args.offset, args.taper)
+			args.angle, args.rotate, args.offset, args.taper, args.twist)
 	curve.render_png(args.outfile, args.caption, args.resolution)
 
 if __name__ == "__main__":

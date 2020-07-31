@@ -40,6 +40,12 @@ inch which is the same as the one on metalgeek. I print from [the
 GIMP](https://www.gimp.org/) which has an Image Settings tab where you can set
 the pixels per inch.
 
+The "twist" option is slightly obscure-- it just offsets everything to one side
+to alter the "clock" of your mitre by the specified number of degrees. This can
+be useful for mitring fork blades or segments because you can position the
+template relative to a centre-line on the top and get the desired clock change
+for your fork offset.
+
 ## framebuild.py
 
 This takes a configuration file like `default.ini`, in which you specify the
