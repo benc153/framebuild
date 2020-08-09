@@ -714,10 +714,21 @@ class Frame:
 
 		# The centre of the front wheel
 		fwc = self._fork_path()[-1]
-		fc = fwc[0]
-		trail = p[0] - fc
-		rc = -self.left_drop.end[0]
-		return WheelGeom(trail, fc, rc, fc + rc)
+
+		trail = p[0] - fwc[0]
+
+		# Front centre is measured from centre of front wheel to centre of BB
+		# shell (which is the origin anyway).
+		fc = norm(fwc)
+
+		# And the same thing for rear centre only with the rear wheel.
+		rc = norm(self.left_drop.end)
+
+		# Horizontal distance between two axles (which is also the distance as
+		# they are at the same height assuming the wheels are the same size)
+		wheelbase = fwc[0] - self.left_drop.end[0]
+
+		return WheelGeom(trail, fc, rc, wheelbase)
 
 	def calc_clearance(self):
 		"""Return the BB height and the pedal strike"""
