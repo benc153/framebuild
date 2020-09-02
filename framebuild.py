@@ -58,6 +58,11 @@ class Tube:
 	def get_radius(self, end):
 		return self.radius
 
+	def draw_radii(self):
+		"""Return the radii to draw this tube with-- show both if it's
+		externally butted or elliptical"""
+		return [self.radius]
+
 	def get_wall(self, end):
 		return self.wall
 
@@ -117,6 +122,9 @@ class ExternallyButtedTube(Tube):
 	def get_radius(self, end):
 		return self.radii[end]
 
+	def draw_radii(self):
+		return self.radii
+
 	def get_wall(self, end):
 		return self.walls[end]
 
@@ -127,6 +135,9 @@ class EllipticalTube(Tube):
 
 	def get_diameters(self, end):
 		return (self.diameter, self.minor_diameter)
+
+	def draw_radii(self):
+		return [x/2 for x in self.get_diameters(TOP)]
 
 class Dropout:
 	def __init__(self, thickness, cs_length, ss_length):

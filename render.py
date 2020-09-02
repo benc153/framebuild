@@ -43,7 +43,7 @@ class Render:
 		t = self.draw_point(top)
 		self.draw.line(b + t, fill="red")
 
-		radii = [tube.get_radius(end) for end in (BOTTOM, TOP)]
+		radii = tube.draw_radii()
 		for r, colour in zip(radii, ("blue", "green")):
 			v = turn_left(tube.vecn) * r
 			for s in (-1, 1):
@@ -52,7 +52,6 @@ class Render:
 				self.draw.line(
 						self.screen_point(start) + self.screen_point(end),
 						fill=colour)
-			if radii[1] == radii[0]: break
 
 	def draw_wheel(self, origin, diameter, tyre_height):
 		origin = self._project(origin)
