@@ -872,11 +872,13 @@ Other Metrics
 		print("Angle between TT and HT: {:.2f}deg".format(
 			rad2deg(self.tt_ht.angle)))
 
+		print("Chainring radii: {}".format(', '.join(["{:.2f}".format(r) for r
+			in self.chainring_radii])))
+
 		print("Approx total mass excluding dropouts: {:.2f}kg".format(
 			self.total_mass()))
 
 		self.display_flex_rigidities()
-
 		self.rear_triangle.display()
 
 	def _lower_stack_path(self):
