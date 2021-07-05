@@ -956,6 +956,35 @@ Other Metrics
 
 		return r
 
+class FittingBike(Frame):
+	def __init__(self, config):
+		self.config = config
+		self._parse_section(config["Fitting Bike"], (
+			("crossbar_height", "crossbar height"),
+			("ht_offset", "HT offset"),
+			("st_offset", "ST offset"),
+			("ht_height", "HT height"),
+			("stack_height", "stack height"),
+			("st_height", "ST height"),
+			("seat_height", "seat height"),
+			))
+
+	def render(self, render):
+		h_start = (array([0.0, self.crossbar_height]) +
+				array([self.ht_offset, 0.0]) +
+				array([0.0, self.ht_height]))
+		h_end = h_start + array([0, self.stack_height])
+
+
+		s_start = (array([0.0, self.crossbar_height]) +
+				array([-self.st_offset, 0.0]) +
+				array([0.0, self.st_height]))
+		s_end = s_start + array([0, self.seat_height])
+
+
+		for p in ((h_start, h_end), (s_start, s_end)):
+			render.polyline(p, "#ef1562")
+
 def main():
 	ap = ArgumentParser()
 	ap.add_argument("-c", "--config", type=str, required=True)
@@ -974,6 +1003,13 @@ def main():
 	frame.render_mitre_templates()
 
 	r = frame.render_scale_diagram(None, args.resolution)
+
+	try:
+		fb = FittingBike(config)
+		fb.render(r)
+	except KeyError:
+		pass
+
 	r.save("side_view.png")
 	print("Rendered diagram to side_view.png")
 
@@ -982,6 +1018,7 @@ def main():
 	r = frame.rear_triangle.render_scale_diagram(args.resolution)
 	r.save("chainstays.png")
 	print("Rendered chainstays to chainstays.png")
+
 
 if __name__ == "__main__":
 	main()
