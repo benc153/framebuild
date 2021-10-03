@@ -225,7 +225,7 @@ class Curve:
 		if self.offset:
 			legend = "{}\nOffset: {}mm".format(legend, self.offset)
 		if self.taper:
-			legend = "{}\nTaper: {}mm".format(legend, self.taper)
+			legend = "{}\nTaper: {}".format(legend, self.taper)
 		if caption:
 			legend = "{}\n{}".format(caption, legend)
 		if self.twist:
